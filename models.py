@@ -137,6 +137,40 @@ MODELS.register(
 )
 
 
+# --- two parallel charged cylinders (line-charge model): on-axis potential ---
+# Two long conducting cylinders, radius a, axes d apart, length l >> d so end
+# effects are negligible and they behave as line charges -q and +q (linear
+# density lambda = q/l). On the axis joining them, with x = distance from the
+# left (negative) cylinder's axis (metres):
+#     V(x) = B * [ ln(x/(d-x)) - ln(a/(d-a)) ],   B = q/(2*pi*eps0*l)
+# The constant offset sets V = 0 at the left cylinder's surface (x = a).
+CYL_SEPARATION = 0.140                # m  centre-to-centre (d = 140 mm)
+CYL_RADIUS = 0.010                    # m  cylinder radius (a = 10 mm)
+EPS0 = 8.8542e-12                     # F/m
+
+def _two_cylinder_potential(x, B):
+    d, a = CYL_SEPARATION, CYL_RADIUS
+    return B * (np.log(x / (d - x)) - np.log(a / (d - a)))
+
+def _two_cylinder_derived(params):
+    (B,) = params
+    d, a = CYL_SEPARATION, CYL_RADIUS
+    return {
+        "charge/length lambda = 2*pi*eps0*B [C/m]": 2 * np.pi * EPS0 * B,
+        "capacitor PD = 2*B*ln((d-a)/a) [V]": 2 * B * np.log((d - a) / a),
+    }
+
+MODELS.register(
+    "two_cylinder_potential",
+    func=_two_cylinder_potential,
+    param_names=["B"],
+    p0=[2.0],
+    derived=_two_cylinder_derived,
+    description="on-axis potential of two parallel line-charge cylinders, "
+                "V = B[ln(x/(d-x)) - ln(a/(d-a))]",
+)
+
+
 # --- TEMPLATE: copy this block to add your own model -------------------------
 # def _my_model(x, a, b, c):
 #     return a * x**2 + b * x + c
