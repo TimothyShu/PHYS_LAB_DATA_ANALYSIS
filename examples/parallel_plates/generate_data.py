@@ -17,7 +17,7 @@ import pandas as pd
 D = 0.060           # m   plate separation (6 cm) -- must match PLATE_SEPARATION in models.py
 STEP = 0.005        # m   probe step (5 mm)
 V_SOURCE = 12.0     # V   source across the plates
-SIGMA = 0.10        # V   voltmeter precision (1-sigma measurement error)
+SIGMA = 0.05        # V   multimeter resolution (1-sigma measurement error)
 
 E_TRUE = V_SOURCE / D       # 200 V/m uniform field
 V0_TRUE = 0.0               # probe origin at the 0 V plate
@@ -26,7 +26,7 @@ V0_TRUE = 0.0               # probe origin at the 0 V plate
 x = np.arange(0.0, 0.060 + 1e-9, STEP)        # 0 mm .. 60 mm
 V_true = E_TRUE * x + V0_TRUE
 
-# Add Gaussian measurement noise at the voltmeter precision.
+# Add Gaussian measurement noise at the multimeter resolution.
 rng = np.random.default_rng(42)               # fixed seed -> reproducible CSV
 V_meas = V_true + rng.normal(0.0, SIGMA, size=x.size)
 y_err = np.full_like(x, SIGMA)

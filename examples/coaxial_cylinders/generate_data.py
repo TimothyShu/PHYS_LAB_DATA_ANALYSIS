@@ -22,7 +22,7 @@ A = 0.015           # m   inner conductor radius (15 mm)  -- match COAX_INNER in
 B_OUTER = 0.110     # m   outer shell radius (110 mm)     -- match COAX_OUTER in models.py
 STEP = 0.005        # m   probe step (5 mm)
 V_SOURCE = 12.0     # V   source across the capacitor
-SIGMA = 0.10        # V   voltmeter precision (1-sigma measurement error)
+SIGMA = 0.05        # V   multimeter resolution (1-sigma measurement error)
 EPS0 = 8.8542e-12   # F/m
 
 B = V_SOURCE / np.log(B_OUTER / A)

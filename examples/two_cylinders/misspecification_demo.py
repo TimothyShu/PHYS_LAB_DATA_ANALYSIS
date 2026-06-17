@@ -21,7 +21,7 @@ from scipy.optimize import curve_fit
 
 D, A, EPS0 = 0.140, 0.010, 8.8542e-12      # true geometry
 B0 = 6.0 / np.log((D - A) / A)             # true prefactor (12 V across surfaces)
-SIGMA = 0.10                               # voltmeter precision
+SIGMA = 0.05                               # multimeter resolution
 
 x = np.arange(0.020, 0.120 + 1e-9, 0.005)
 err = np.full_like(x, SIGMA)

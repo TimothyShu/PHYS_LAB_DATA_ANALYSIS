@@ -32,7 +32,7 @@ Registered as `coaxial_potential` in `../../models.py`.
 ## Files
 
 - `generate_data.py` — produces `potential_vs_position.csv` (theory + Gaussian
-  noise at 0.10 V; fixed seed, reproducible). The `x` column is the zeroed radial
+  noise at 0.05 V; fixed seed, reproducible). The `x` column is the zeroed radial
   position `p` (0 .. 0.095 m).
 - `potential_vs_position.csv` — the generated sample data.
 - `coaxial_cylinders_fit.png` — the fit + theory overlay plot.
@@ -55,9 +55,9 @@ python fit_lab_data.py examples/coaxial_cylinders/potential_vs_position.csv \
 
 | Quantity | Fitted | Expected |
 |---|---|---|
-| Prefactor `B` | 6.024 ± 0.016 V | 6.023 V |
-| Charge/length `λ` | (3.352 ± 0.009) × 10⁻¹⁰ C/m | — |
-| Capacitor PD `B·ln(b/a)` | 12.003 ± 0.032 V | 12 V (source) |
+| Prefactor `B` | 6.0235 ± 0.0079 V | 6.023 V |
+| Charge/length `λ` | (3.351 ± 0.004) × 10⁻¹⁰ C/m | — |
+| Capacitor PD `B·ln(b/a)` | 12.001 ± 0.016 V | 12 V (source) |
 | Capacitance/length `2πε₀/ln(b/a)` | 2.79 × 10⁻¹¹ F/m | (geometric) |
 
 Reduced chi-square ≈ 0.76 — a good fit. `V` runs from 0 V at the inner conductor

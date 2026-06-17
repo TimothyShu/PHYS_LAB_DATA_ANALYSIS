@@ -35,7 +35,7 @@ recovered capacitor PD (a cross-check that it returns ~12 V).
 ## Files
 
 - `generate_data.py` — produces `potential_vs_position.csv` (synthetic probe
-  readings = theory + Gaussian noise at the 0.10 V voltmeter precision; fixed
+  readings = theory + Gaussian noise at the 0.05 V multimeter resolution; fixed
   random seed, so it is reproducible). Units are SI: x in metres, V in volts.
 - `potential_vs_position.csv` — the generated sample data (`x, y, y_err`).
 - `two_cylinders_fit.png` — the fit + theory overlay plot.
@@ -62,9 +62,9 @@ The fit recovers:
 
 | Quantity | Fitted | Expected |
 |---|---|---|
-| Prefactor `B` | 2.3393 ± 0.0079 V | 2.339 V |
-| Charge/length `λ` | (1.3014 ± 0.0044) × 10⁻¹⁰ C/m | — |
-| Capacitor PD `2·B·ln((d−a)/a)` | 12.000 ± 0.041 V | 12 V (source) |
+| Prefactor `B` | 2.3393 ± 0.0040 V | 2.339 V |
+| Charge/length `λ` | (1.3014 ± 0.0022) × 10⁻¹⁰ C/m | — |
+| Capacitor PD `2·B·ln((d−a)/a)` | 12.000 ± 0.020 V | 12 V (source) |
 
 Reduced chi-square ≈ 0.72 — a good fit. The recovered capacitor PD lands right
 on the 12 V source. In the plot the fit and theory curves overlap, and the

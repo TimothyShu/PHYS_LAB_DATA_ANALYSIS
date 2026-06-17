@@ -25,7 +25,7 @@ field/PD reporting); the generic `linear` model would fit identically.
 ## Files
 
 - `generate_data.py` — produces `potential_vs_position.csv` (theory + Gaussian
-  noise at the 0.10 V voltmeter precision; fixed seed, reproducible). SI units.
+  noise at the 0.05 V multimeter resolution; fixed seed, reproducible). SI units.
 - `potential_vs_position.csv` — the generated sample data (`x, y, y_err`).
 - `parallel_plates_fit.png` — the fit + theory overlay plot.
 
@@ -49,9 +49,9 @@ python fit_lab_data.py examples/parallel_plates/potential_vs_position.csv \
 
 | Quantity | Fitted | Expected |
 |---|---|---|
-| Field `E` | 200.8 ± 1.5 V/m | 200 V/m |
-| Offset `V0` | −0.038 ± 0.052 V | 0 V |
-| Plate PD `E·d` | 12.050 ± 0.089 V | 12 V (source) |
+| Field `E` | 200.42 ± 0.74 V/m | 200 V/m |
+| Offset `V0` | −0.019 ± 0.026 V | 0 V |
+| Plate PD `E·d` | 12.025 ± 0.044 V | 12 V (source) |
 
 Reduced chi-square ≈ 0.89 — a good fit. The recovered plate PD lands on the
 12 V source, the offset is consistent with zero, and the residuals scatter

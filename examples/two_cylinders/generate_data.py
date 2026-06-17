@@ -23,7 +23,7 @@ D = 0.140           # m   centre-to-centre separation (140 mm)
 A = 0.010           # m   cylinder radius (10 mm) -- must match CYL_RADIUS in models.py
 STEP = 0.005        # m   probe step (5 mm)
 V_SOURCE = 12.0     # V   source across the capacitor
-SIGMA = 0.10        # V   voltmeter precision (1-sigma measurement error)
+SIGMA = 0.05        # V   multimeter resolution (1-sigma measurement error)
 EPS0 = 8.8542e-12   # F/m
 
 # Prefactor fixed by the 12 V across the cylinder surfaces.
@@ -33,7 +33,7 @@ B = (V_SOURCE / 2.0) / np.log((D - A) / A)
 x = np.arange(0.020, 0.120 + 1e-9, STEP)      # 20 mm .. 120 mm
 V_true = B * (np.log(x / (D - x)) - np.log(A / (D - A)))
 
-# Add Gaussian measurement noise at the voltmeter precision.
+# Add Gaussian measurement noise at the multimeter resolution.
 rng = np.random.default_rng(42)               # fixed seed -> reproducible CSV
 V_meas = V_true + rng.normal(0.0, SIGMA, size=x.size)
 y_err = np.full_like(x, SIGMA)
