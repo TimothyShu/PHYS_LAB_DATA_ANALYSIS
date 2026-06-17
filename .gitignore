@@ -1,0 +1,12 @@
+# Generated plots
+fit.png
+*.png
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Data (uncomment if you don't want raw data tracked)
+# *.csv
