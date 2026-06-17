@@ -112,6 +112,31 @@ MODELS.register(
 )
 
 
+# --- two charged spheres (point-charge model): on-axis potential ---
+# Two spheres carrying +Q and -Q, centres SPHERE_SEPARATION apart along x,
+# connected across a source so their surfaces sit at +/- half the source voltage.
+# Treated as point charges; x is the distance from the +Q sphere (metres).
+#     V(x) = C * (1/x - 1/(D - x)),   with C = k*Q   (units V*m)
+SPHERE_SEPARATION = 0.140             # m  (centre-to-centre, d = 140 mm)
+COULOMB_K = 8.9875e9                  # N*m^2/C^2
+
+def _two_sphere_potential(x, C):
+    return C * (1.0 / x - 1.0 / (SPHERE_SEPARATION - x))
+
+def _two_sphere_derived(params):
+    (C,) = params
+    return {"charge Q = C/k [C]": C / COULOMB_K}
+
+MODELS.register(
+    "two_sphere_potential",
+    func=_two_sphere_potential,
+    param_names=["C"],
+    p0=[0.06],
+    derived=_two_sphere_derived,
+    description="on-axis potential of two point-charge spheres, V = C(1/x - 1/(D-x))",
+)
+
+
 # --- TEMPLATE: copy this block to add your own model -------------------------
 # def _my_model(x, a, b, c):
 #     return a * x**2 + b * x + c
