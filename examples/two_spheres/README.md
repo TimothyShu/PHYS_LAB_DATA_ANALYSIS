@@ -43,6 +43,7 @@ cd examples/two_spheres && python generate_data.py && cd ../..
 python fit_lab_data.py examples/two_spheres/potential_vs_position.csv \
     --model two_sphere_potential \
     --theory 0.065 --theory-label "theory (C=0.065)" \
+    --xlabel "position x (m)" --ylabel "potential V (V)" \
     -o examples/two_spheres/two_spheres_fit.png
 ```
 
@@ -52,6 +53,3 @@ The fit recovers `C = 0.0646 ± 0.0011 V·m` (charge `Q = (7.19 ± 0.12) × 10�
 consistent with the calibrated theoretical value of 0.0650 V·m, with reduced
 chi-square ≈ 0.7 — a good fit. In the plot the fit and theory curves overlap,
 and the residuals (`data − fit` and `data − theory`) scatter evenly about zero.
-
-> Note: the plot axes are labelled generically (`x`, `y`); here `x` is the probe
-> position in metres and `y` is the potential in volts.

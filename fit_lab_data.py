@@ -131,7 +131,8 @@ def derived_quantities(mdl, popt, pcov):
 # 7. PLOT: data + best fit, with residuals subplot
 # ----------------------------------------------------------------------------
 def plot(mdl, x, y, y_err, popt, chi2_red, outpath="fit.png", show=True,
-         theory_params=None, theory_label="theory"):
+         theory_params=None, theory_label="theory",
+         residuals=True, xlabel="x", ylabel="y"):
     xs = np.linspace(x.min(), x.max(), 400)       # smooth curve for plotting
     fit_curve = mdl.func(xs, *popt)
     resid = y - mdl.func(x, *popt)
@@ -140,10 +141,15 @@ def plot(mdl, x, y, y_err, popt, chi2_red, outpath="fit.png", show=True,
     theory_smooth = theory_curve(mdl, xs, theory_params)  # smooth curve for the main panel
     theory_at_x = theory_curve(mdl, x, theory_params)     # at data points, for residuals
 
-    fig, (ax, axr) = plt.subplots(
-        2, 1, sharex=True, figsize=(7, 6),
-        gridspec_kw={"height_ratios": [3, 1]},
-    )
+    # Layout: two stacked panels (main + residuals) or a single panel.
+    if residuals:
+        fig, (ax, axr) = plt.subplots(
+            2, 1, sharex=True, figsize=(7, 6),
+            gridspec_kw={"height_ratios": [3, 1]},
+        )
+    else:
+        fig, ax = plt.subplots(figsize=(7, 5))
+        axr = None
 
     # --- main panel: data + best-fit curve (+ optional theory) ---
     ax.errorbar(x, y, yerr=y_err, fmt="o", capsize=3, label="data", zorder=2)
@@ -152,19 +158,23 @@ def plot(mdl, x, y, y_err, popt, chi2_red, outpath="fit.png", show=True,
     if theory_smooth is not None:
         ax.plot(xs, theory_smooth, "--", lw=2, color="C2",
                 label=theory_label, zorder=1)
-    ax.set_ylabel("y")
+    ax.set_ylabel(ylabel)
     ax.legend()
     ax.set_title("Fit to lab data")
 
     # --- residuals panel: data - fit, plus data - theory if available ---
-    axr.axhline(0, color="k", lw=0.8)
-    axr.errorbar(x, resid, yerr=y_err, fmt="o", capsize=3, label="data $-$ fit")
-    if theory_at_x is not None:
-        axr.errorbar(x, y - theory_at_x, yerr=y_err, fmt="s", capsize=3,
-                     color="C2", alpha=0.7, label="data $-$ theory")
-        axr.legend(fontsize="small")
-    axr.set_xlabel("x")
-    axr.set_ylabel("residual")
+    if residuals:
+        axr.axhline(0, color="k", lw=0.8)
+        axr.errorbar(x, resid, yerr=y_err, fmt="o", capsize=3, label="data $-$ fit")
+        if theory_at_x is not None:
+            axr.errorbar(x, y - theory_at_x, yerr=y_err, fmt="s", capsize=3,
+                         color="C2", alpha=0.7, label="data $-$ theory")
+            axr.legend(fontsize="small")
+        axr.set_xlabel(xlabel)
+        axr.set_ylabel("residual")
+    else:
+        # No residuals panel -> the main panel carries the x-axis label.
+        ax.set_xlabel(xlabel)
 
     fig.tight_layout()
     plt.savefig(outpath, dpi=150)
@@ -196,6 +206,10 @@ def parse_args():
                         "(same order as the model's parameters), e.g. --theory 9.81 0.0")
     p.add_argument("--theory-label", default="theory",
                    help="legend label for the theory overlay")
+    p.add_argument("--no-residuals", dest="residuals", action="store_false",
+                   help="omit the residuals subplot (show only the main panel)")
+    p.add_argument("--xlabel", default="x", help="x-axis label (default: x)")
+    p.add_argument("--ylabel", default="y", help="y-axis label (default: y)")
     return p.parse_args()
 
 
@@ -230,7 +244,8 @@ def main():
             print(f"  {label} = {q:.2uP}")
 
     plot(mdl, x, y, y_err, popt, chi2_red, outpath=args.out, show=not args.no_show,
-         theory_params=args.theory, theory_label=args.theory_label)
+         theory_params=args.theory, theory_label=args.theory_label,
+         residuals=args.residuals, xlabel=args.xlabel, ylabel=args.ylabel)
 
 
 if __name__ == "__main__":

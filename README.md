@@ -55,6 +55,8 @@ python fit_lab_data.py data.csv --model exponential --theory 5.0 2.3 --theory-la
 | `--no-show` | Save the plot but don't open a window. |
 | `--theory VAL...` | Overlay the model evaluated at these parameter values (same order as the model's parameters). |
 | `--theory-label` | Legend label for the theory overlay. |
+| `--no-residuals` | Omit the residuals subplot (show only the main panel). |
+| `--xlabel`, `--ylabel` | Axis labels (default: `x`, `y`). |
 
 ## Input data format
 
