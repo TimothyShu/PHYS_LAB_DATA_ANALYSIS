@@ -171,6 +171,30 @@ MODELS.register(
 )
 
 
+# --- parallel-plate capacitor: uniform-field potential ---
+# Two large parallel plates a distance d apart held across a source. The field
+# between them is uniform, so the on-axis potential is LINEAR in position:
+#     V(x) = E * x + V0
+# where E is the field magnitude (V/m) and V0 is an offset (probe-origin / contact
+# potential). The plate PD follows as E * d.
+PLATE_SEPARATION = 0.060              # m  (plate separation, d = 6 cm)
+
+def _parallel_plate_potential(x, E, V0):
+    return E * x + V0
+
+def _parallel_plate_derived(params):
+    E, V0 = params
+    return {"plate PD = E*d [V]": E * PLATE_SEPARATION}
+
+MODELS.register(
+    "parallel_plate_potential",
+    func=_parallel_plate_potential,
+    param_names=["E", "V0"],
+    derived=_parallel_plate_derived,
+    description="uniform-field potential between parallel plates, V = E*x + V0",
+)
+
+
 # --- TEMPLATE: copy this block to add your own model -------------------------
 # def _my_model(x, a, b, c):
 #     return a * x**2 + b * x + c
