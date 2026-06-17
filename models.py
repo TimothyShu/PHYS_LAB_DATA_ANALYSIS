@@ -171,6 +171,41 @@ MODELS.register(
 )
 
 
+# --- coaxial cylindrical capacitor: radial potential ---
+# One cylinder inside another (coaxial): inner conductor radius a, outer shell
+# inner radius b, length l >> b so end effects are negligible. With charge +/-q
+# per length and the INNER surface taken as the 0 V reference, the field is
+# radial, E(r) = lambda/(2*pi*eps0*r), so the potential is a single logarithm in
+# the radius. With probe position p measured from the inner surface (p = 0 at
+# r = a, so r = p + a):
+#     V(p) = B * ln((p + a) / a),   B = q/(2*pi*eps0*l) = lambda/(2*pi*eps0)
+# V = 0 at p = 0 (inner surface) and V = the full PD at p = b - a (outer surface).
+COAX_INNER = 0.015                    # m  inner conductor radius (a = 15 mm)
+COAX_OUTER = 0.110                    # m  outer shell radius (b = 110 mm)
+
+def _coaxial_potential(p, B):
+    return B * np.log((p + COAX_INNER) / COAX_INNER)
+
+def _coaxial_derived(params):
+    (B,) = params
+    a, b = COAX_INNER, COAX_OUTER
+    return {
+        "charge/length lambda = 2*pi*eps0*B [C/m]": 2 * np.pi * EPS0 * B,
+        "capacitor PD = B*ln(b/a) [V]": B * np.log(b / a),
+        "capacitance/length = 2*pi*eps0/ln(b/a) [F/m]": 2 * np.pi * EPS0 / np.log(b / a),
+    }
+
+MODELS.register(
+    "coaxial_potential",
+    func=_coaxial_potential,
+    param_names=["B"],
+    p0=[5.0],
+    derived=_coaxial_derived,
+    description="coaxial cylindrical capacitor potential vs radius, "
+                "V = B*ln((p+a)/a)",
+)
+
+
 # --- parallel-plate capacitor: uniform-field potential ---
 # Two large parallel plates a distance d apart held across a source. The field
 # between them is uniform, so the on-axis potential is LINEAR in position:

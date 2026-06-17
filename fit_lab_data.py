@@ -241,7 +241,12 @@ def main():
     if derived:
         print("\nDerived quantities:")
         for label, q in derived.items():
-            print(f"  {label} = {q:.2uP}")
+            # ufloats format with .2uP; constants (no fit dependence) are plain
+            # floats, so fall back to an ordinary format for those.
+            if hasattr(q, "std_dev"):
+                print(f"  {label} = {q:.2uP}")
+            else:
+                print(f"  {label} = {q:.4g}")
 
     plot(mdl, x, y, y_err, popt, chi2_red, outpath=args.out, show=not args.no_show,
          theory_params=args.theory, theory_label=args.theory_label,
