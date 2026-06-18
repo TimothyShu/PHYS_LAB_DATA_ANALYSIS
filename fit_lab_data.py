@@ -15,6 +15,7 @@ remaining per-experiment edit here, in load_data().
 """
 
 import argparse
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
@@ -132,8 +133,13 @@ def derived_quantities(mdl, popt, pcov):
 # ----------------------------------------------------------------------------
 def plot(mdl, x, y, y_err, popt, chi2_red, outpath="fit.png", show=True,
          theory_params=None, theory_label="theory",
-         residuals=True, xlabel="x", ylabel="y"):
-    xs = np.linspace(x.min(), x.max(), 400)       # smooth curve for plotting
+         residuals=True, xlabel="x", ylabel="y", show_chi2=True,
+         title="Fit to lab data", xmin=None, xmax=None):
+    # Smooth-curve range: defaults to the data span, but can be extended past it
+    # (e.g. to show where the curves cross V=0) via xmin/xmax.
+    lo = xmin if xmin is not None else x.min()
+    hi = xmax if xmax is not None else x.max()
+    xs = np.linspace(lo, hi, 400)                 # smooth curve for plotting
     fit_curve = mdl.func(xs, *popt)
     resid = y - mdl.func(x, *popt)
 
@@ -153,14 +159,16 @@ def plot(mdl, x, y, y_err, popt, chi2_red, outpath="fit.png", show=True,
 
     # --- main panel: data + best-fit curve (+ optional theory) ---
     ax.errorbar(x, y, yerr=y_err, fmt="o", capsize=3, label="data", zorder=2)
-    ax.plot(xs, fit_curve, "-", lw=2,
-            label=f"fit ($\\chi^2_\\nu$ = {chi2_red:.2f})", zorder=3)
+    fit_label = f"fit ($\\chi^2_\\nu$ = {chi2_red:.2f})" if show_chi2 else "fit"
+    ax.plot(xs, fit_curve, "-", lw=2, label=fit_label, zorder=3)
     if theory_smooth is not None:
         ax.plot(xs, theory_smooth, "--", lw=2, color="C2",
                 label=theory_label, zorder=1)
     ax.set_ylabel(ylabel)
     ax.legend()
-    ax.set_title("Fit to lab data")
+    ax.set_title(title)
+    if xmin is not None or xmax is not None:
+        ax.set_xlim(lo, hi)                        # sharex propagates to residuals
 
     # --- residuals panel: data - fit, plus data - theory if available ---
     if residuals:
@@ -208,8 +216,16 @@ def parse_args():
                    help="legend label for the theory overlay")
     p.add_argument("--no-residuals", dest="residuals", action="store_false",
                    help="omit the residuals subplot (show only the main panel)")
+    p.add_argument("--no-chi2", dest="show_chi2", action="store_false",
+                   help="omit the reduced chi-square from the fit legend label")
     p.add_argument("--xlabel", default="x", help="x-axis label (default: x)")
     p.add_argument("--ylabel", default="y", help="y-axis label (default: y)")
+    p.add_argument("--title", default=None,
+                   help="plot title (default: derived from the data file name)")
+    p.add_argument("--xmin", type=float, default=None,
+                   help="extend the plotted curve/axis down to this x (past the data)")
+    p.add_argument("--xmax", type=float, default=None,
+                   help="extend the plotted curve/axis up to this x (past the data)")
     return p.parse_args()
 
 
@@ -225,6 +241,15 @@ def main():
 
     mdl = MODELS[args.model]
     x, y, y_err = load_data(path=args.data)
+
+    # Title: explicit --title wins; otherwise derive from the data file name
+    # (underscores -> spaces, title-cased), falling back to a generic label.
+    if args.title is not None:
+        title = args.title
+    elif args.data is not None:
+        title = os.path.splitext(os.path.basename(args.data))[0].replace("_", " ").title()
+    else:
+        title = "Fit to lab data"
 
     popt, pcov, perr, chi2_red, dof = fit(mdl, x, y, y_err)
 
@@ -250,7 +275,8 @@ def main():
 
     plot(mdl, x, y, y_err, popt, chi2_red, outpath=args.out, show=not args.no_show,
          theory_params=args.theory, theory_label=args.theory_label,
-         residuals=args.residuals, xlabel=args.xlabel, ylabel=args.ylabel)
+         residuals=args.residuals, xlabel=args.xlabel, ylabel=args.ylabel,
+         show_chi2=args.show_chi2, title=title, xmin=args.xmin, xmax=args.xmax)
 
 
 if __name__ == "__main__":
