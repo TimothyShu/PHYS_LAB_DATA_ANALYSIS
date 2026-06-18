@@ -19,11 +19,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-D, A, EPS0 = 0.140, 0.010, 8.8542e-12      # true geometry
+D, A, EPS0 = 0.120, 0.005, 8.8542e-12      # true geometry
 B0 = 6.0 / np.log((D - A) / A)             # true prefactor (12 V across surfaces)
 SIGMA = 0.05                               # multimeter resolution
 
-x = np.arange(0.020, 0.120 + 1e-9, 0.005)
+x = np.arange(0.010, 0.110 + 1e-9, 0.005)
 err = np.full_like(x, SIGMA)
 rng = np.random.default_rng(42)
 V_clean = B0 * (np.log(x / (D - x)) - np.log(A / (D - A)))
@@ -46,7 +46,7 @@ y_wrongd = y_correct                                   # same data, wrong-d mode
 scenarios = [
     ("(A) correct model", y_correct, lambda x, B: cyl(x, B)),
     ("(B) +0.8 V zero offset\n(model has no offset)", y_offset, lambda x, B: cyl(x, B)),
-    ("(C) wrong d in model\n(0.18 vs 0.14 m)", y_wrongd, lambda x, B: cyl(x, B, d=0.18)),
+    ("(C) wrong d in model\n(0.15 vs 0.12 m)", y_wrongd, lambda x, B: cyl(x, B, d=0.15)),
 ]
 
 fig, axes = plt.subplots(2, 3, figsize=(13, 6), sharex=True,

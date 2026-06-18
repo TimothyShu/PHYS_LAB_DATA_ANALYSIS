@@ -1,71 +1,61 @@
 # Example: potential between two parallel charged cylinders
 
-Measuring the electric potential `V(x)` along the axis joining two long parallel
-conducting cylinders (a cylindrical capacitor), and comparing the measurements
-against the line-charge theory.
+Real measured potential `V(x)` along the axis joining two long parallel
+conducting cylinders, compared against the line-charge theory.
 
 ## Physical setup
 
-- Two long conducting cylinders, radius **a = 10 mm**, axes **d = 140 mm** apart.
-- Length **l ≫ d**, so end effects are negligible and each behaves as a uniform
-  **line charge**: −q on the left cylinder, +q on the right (linear density λ = q/l).
-- Connected across a **12 V source**.
-- A probe measures the on-axis potential `V(x)`, with `x` = distance from the
-  left cylinder's axis, stepped in **5 mm** increments.
+- Two long conducting cylinders, radius **a = 5 mm**, axes **d = 120 mm** apart,
+  length **l ≫ d** (so they behave as line charges −q and +q), across a **12 V source**.
+- A probe measures the on-axis potential. The probe position is read from the
+  **near cylinder's surface**, so the axis distance is `x = x_probe + a` (the
+  recorded `x = 0` is the surface, at axis distance 5 mm).
 
-Superposing the two line charges gives a **logarithmic** on-axis potential:
+The superposed line-charge potential is
 
-    V(x) = B · [ ln(x/(d − x)) − ln(a/(d − a)) ],    B = q / (2·π·ε₀·l)
+    V(x) = B·[ ln(x/(d − x)) − ln(a/(d − a)) ]  =  B·ln(x/(d − x)) + C
 
-The `−ln(a/(d−a))` term sets `V = 0` at the left cylinder's surface (`x = a`).
-The single fittable parameter is the prefactor `B`; `d` and `a` are known
-geometry. The 12 V across the capacitor fixes the theoretical value:
+with the prefactor and constant fixed by the 12 V across the surfaces:
 
-    12 V = V(d−a) − V(a) = 2·B·ln((d−a)/a)   →   B = 6 / ln((d−a)/a) ≈ 2.339 V
+    B = 6 / ln((d − a)/a) = 6/ln(23) = 1.914 V
+    C = B·ln((d − a)/a)   = 6.00 V   (midpoint potential)
 
-This is registered as the `two_cylinder_potential` model in `../../models.py`,
-which fits `B` and reports the derived charge-per-length `λ = 2·π·ε₀·B` and the
-recovered capacitor PD (a cross-check that it returns ~12 V).
-
-> **Note on geometry:** this is a *line-charge* model (potential ∝ ln r), correct
-> for long cylinders/rods. It is **not** the point-charge model (potential ∝ 1/r)
-> used for spheres — that model (`two_sphere_potential`) also exists in the
-> registry, but does not apply to this apparatus.
+i.e. **`V = 1.914·ln(x/(120 − x)) + 6`** (x in mm). `V = 0` at the near surface
+(x = 5 mm), 6 V at the midpoint (x = 60 mm), 12 V at the far surface (x = 115 mm).
+Registered as `two_cylinder_potential` in `../../models.py`.
 
 ## Files
 
-- `generate_data.py` — produces `potential_vs_position.csv` (synthetic probe
-  readings = theory + Gaussian noise at the 0.05 V multimeter resolution; fixed
-  random seed, so it is reproducible). Units are SI: x in metres, V in volts.
-- `potential_vs_position.csv` — the generated sample data (`x, y, y_err`).
-- `two_cylinders_fit.png` — the fit + theory overlay plot.
+- `parallel_cylinders.csv` — measured data (`x` = axis distance in m, `y` = mean
+  of 3 trials, `y_err` = 0.05 V multimeter resolution).
+- `parallel_cylinders_fit.png` — data + fit + theory overlay.
+- `misspecification_demo.py` / `.png` — shows how a wrong fixed constant or an
+  unmodeled offset inflates χ² and bends the residuals (teaching aid).
 
 ## Reproduce
 
-From the repository root (with the venv set up — see the top-level README):
+From the repository root (venv set up — see the top-level README):
 
 ```bash
-# 1. regenerate the sample data (optional; the CSV is already committed)
-cd examples/two_cylinders && python generate_data.py && cd ../..
-
-# 2. fit the data and overlay the theoretical curve (B = 2.339 V)
-python fit_lab_data.py examples/two_cylinders/potential_vs_position.csv \
+python fit_lab_data.py examples/two_cylinders/parallel_cylinders.csv \
     --model two_cylinder_potential \
-    --theory 2.33924 --theory-label "theory (B=2.34)" \
-    --xlabel "position x (m)" --ylabel "potential V (V)" \
-    -o examples/two_cylinders/two_cylinders_fit.png
+    --theory 1.9136 --theory-label "theory (B=1.914, V=B*ln(x/(120-x))+6)" \
+    --xlabel "axis distance x (m)" --ylabel "potential V (V)" \
+    --no-residuals --no-chi2 --title "Parallel Cylinders (a=5mm, d=120mm)" \
+    --xmax 0.115 -o examples/two_cylinders/parallel_cylinders_fit.png
 ```
 
 ## Result
 
-The fit recovers:
-
-| Quantity | Fitted | Expected |
+| Quantity | Fit | Theory |
 |---|---|---|
-| Prefactor `B` | 2.3393 ± 0.0040 V | 2.339 V |
-| Charge/length `λ` | (1.3014 ± 0.0022) × 10⁻¹⁰ C/m | — |
-| Capacitor PD `2·B·ln((d−a)/a)` | 12.000 ± 0.020 V | 12 V (source) |
+| Prefactor `B` | 1.939 ± 0.004 V | 1.914 V (= 6/ln23) |
+| Capacitor PD `2·B·ln((d−a)/a)` | 12.16 ± 0.02 V | 12 V (source) |
+| Charge/length `λ` | (1.079 ± 0.002) × 10⁻¹⁰ C/m | — |
 
-Reduced chi-square ≈ 0.72 — a good fit. The recovered capacitor PD lands right
-on the 12 V source. In the plot the fit and theory curves overlap, and the
-residuals (`data − fit` and `data − theory`) scatter evenly about zero.
+The data reproduces `V = 1.914·ln(x/(120−x)) + 6` to ~1.3% on both `B` and the
+recovered 12 V supply — the closest agreement of the example set. The plot shows
+the characteristic S-curve (steep near each cylinder, flat through 6 V at the
+midpoint), with fit and theory essentially coincident. χ²ᵥ ≈ 18 is somewhat
+above 1, indicating the 0.05 V resolution slightly underestimates the true
+point-to-point scatter (~0.2 V), but the shape, `B`, and PD all match theory.
