@@ -144,8 +144,8 @@ MODELS.register(
 # left (negative) cylinder's axis (metres):
 #     V(x) = B * [ ln(x/(d-x)) - ln(a/(d-a)) ],   B = q/(2*pi*eps0*l)
 # The constant offset sets V = 0 at the left cylinder's surface (x = a).
-CYL_SEPARATION = 0.140                # m  centre-to-centre (d = 140 mm)
-CYL_RADIUS = 0.010                    # m  cylinder radius (a = 10 mm)
+CYL_SEPARATION = 0.120                # m  centre-to-centre (d = 120 mm)
+CYL_RADIUS = 0.005                    # m  cylinder radius (a = 5 mm)
 EPS0 = 8.8542e-12                     # F/m
 
 def _two_cylinder_potential(x, B):
@@ -227,6 +227,47 @@ MODELS.register(
     param_names=["E", "V0"],
     derived=_parallel_plate_derived,
     description="uniform-field potential between parallel plates, V = E*x + V0",
+)
+
+
+# --- concentric ring electrodes (2D coaxial): radial potential ---
+# Two concentric ring electrodes, inner radius a, outer radius b, across a source.
+# In the annulus, Laplace's equation gives a logarithmic potential in the radius:
+#     V(r) = B * ln(r/a),   V = 0 at r = a (inner ring), V = source at r = b.
+# Here x IS the radius r (so V = 0 at r = a). The fitted B should match
+# V_source / ln(b/a); for 12 V across 15 mm -> 60 mm that is 12/ln(4) = 8.66 V.
+RING_INNER = 0.010                    # m  inner ring radius (a = 10 mm)
+RING_OUTER = 0.060                    # m  outer ring radius (b = 60 mm)
+
+def _concentric_rings(r, B):
+    return B * np.log(r / RING_INNER)
+
+def _concentric_rings_derived(params):
+    (B,) = params
+    return {"implied source V = B*ln(b/a) [V]": B * np.log(RING_OUTER / RING_INNER)}
+
+MODELS.register(
+    "concentric_rings",
+    func=_concentric_rings,
+    param_names=["B"],
+    p0=[8.0],
+    derived=_concentric_rings_derived,
+    description="concentric ring electrodes, V = B*ln(r/a) (inner radius a fixed)",
+)
+
+
+# Same physics but with the EFFECTIVE inner radius `a` fitted, not fixed at 15 mm.
+# Useful when the data's curvature implies a different effective inner radius
+# (probe-origin offset / finite electrode geometry). a is in metres.
+def _concentric_rings_freea(r, B, a):
+    return B * np.log(r / a)
+
+MODELS.register(
+    "concentric_rings_freea",
+    func=_concentric_rings_freea,
+    param_names=["B", "a"],
+    p0=[6.0, 0.010],
+    description="concentric rings with fitted effective inner radius, V = B*ln(r/a)",
 )
 
 
